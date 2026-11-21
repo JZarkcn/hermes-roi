@@ -1,0 +1,18 @@
+{
+  "source": "https://www.xe.com/currencyconverter/",
+  "source_note": "Xe mid-market rates (informational), fetched 2026-11-02 UTC via the Xe converter pages.",
+  "as_of": "2026-11-02",
+  "base": "USD",
+  "rates": {
+    "CNY": "6.64910834",
+    "EUR": "0.89194653",
+    "GBP": "0.74534421",
+    "CHF": "0.819842",
+    "ZAR": "16.6402"
+  },
+  "notes": [
+    "Rates are 1 USD = rate units of the quoted currency (strings, exact).",
+    "CNY/EUR/GBP from the per-pair converter pages; CHF/ZAR from the same-day page sidebar. Extend the object for more currencies.",
+    "Live Xe API fetch is a later opt-in (user-supplied key); v1 ships this snapshot plus manual rate entry (D-019)."
+  ]
+}

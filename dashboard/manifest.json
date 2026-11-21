@@ -1,0 +1,8 @@
+{
+  "name": "hermes-roi",
+  "label": "ROI",
+  "description": "Read-only cloud-equivalent savings summary over the selected profile's session store.",
+  "icon": "pulse",
+  "version": "0.1.0",
+  "api": "plugin_api.py"
+}

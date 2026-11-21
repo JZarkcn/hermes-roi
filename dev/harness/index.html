@@ -1,0 +1,85 @@
+<!doctype html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ROI harness</title>
+<script src="/react.umd.js"></script>
+<script src="/react-dom.umd.js"></script>
+<style>
+  :root {
+    /* approximated from the desktop build's --ui-* tokens (dark theme) */
+    --ui-bg-chrome: #14161b;
+    --ui-widget-surface-background: #1a1d23;
+    --ui-text-primary: #e9ebf0;
+    --ui-text-secondary: #a3abb9;
+    --ui-text-tertiary: #626b7a;
+    --ui-accent: #4f8cff;
+    --ui-stroke-secondary: #2a2e37;
+    --ui-stroke-tertiary: #22252c;
+    --ui-green: #4ade80;
+    --ui-cyan: #22d3ee;
+    --ui-yellow: #facc15;
+    --ui-purple: #a78bfa;
+    --ui-red: #f87171;
+  }
+  html, body { margin: 0; background: #0e0f13; color: var(--ui-text-primary);
+    font-family: -apple-system, "Segoe UI", sans-serif; }
+  #root { max-width: 1100px; margin: 0 auto; }
+</style>
+<script type="importmap">
+{
+  "imports": {
+    "react": "/shims/react.js",
+    "react-dom/client": "/shims/react-dom-client.js",
+    "@hermes/plugin-sdk": "/sdk-stub.js"
+  }
+}
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module">
+  import { createRoot } from "react-dom/client";
+  // Dynamic import with a timestamp bust so the harness always picks up the
+  // latest desktop/plugin.js (a static module import gets browser-cached and
+  // silently lags the source — owner 2026-11-06 self-check trap).
+  const plugin = (await import("/plugin.js?bust=" + Date.now())).default;
+
+  const [eco, summ, health] = await Promise.all([
+    fetch("/sample/economics.json", { cache: "no-store" }).then((r) => r.json()),
+    fetch("/sample/summary.json", { cache: "no-store" }).then((r) => r.json()),
+    fetch("/sample/health.json", { cache: "no-store" }).then((r) => r.json()),
+  ]);
+
+  const bag = new Map();
+  // Pre-fill persisted hardware settings so the full economics view renders
+  // (the page gates on hw + start, exactly like a returning user).
+  // ?onboard=1 skips the prefill to exercise the first-run state.
+  if (!new URLSearchParams(location.search).has("onboard")) {
+    bag.set("roi_hw_cost", "5000");
+    bag.set("roi_start_at", "2025-01-01");
+    bag.set("roi_energy_price", "0.12");
+    bag.set("roi_energy_kwh", "20");
+  }
+  const contributions = [];
+  const ctx = {
+    rest: async (path) => {
+      const p = path.split("?")[0];
+      if (p === "/economics") return eco;
+      if (p === "/summary") return summ;
+      if (p === "/health") return health;
+      throw new Error("no route for " + path);
+    },
+    storage: {
+      get: (k, d) => (bag.has(k) ? bag.get(k) : d),
+      set: (k, v) => bag.set(k, v),
+    },
+    register: (c) => contributions.push(c),
+  };
+  plugin.register(ctx);
+  const page = contributions.find((c) => c.id === "roi-page");
+  createRoot(document.getElementById("root")).render(page.render());
+  window.__ROI_HARNESS_OK__ = true;
+</script>
+</body>
+</html>
