@@ -8,13 +8,18 @@ SRC="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 SRC_REV="$(git -C "$SRC" rev-parse --short HEAD)"
 DIST="${HERMES_ROI_DIST:-$(dirname "$SRC")/hermes-roi-dist}"
 
-rm -rf "$DIST"
-mkdir -p "$DIST"
+if [ -d "$DIST/.git" ]; then
+  # 已有发布仓库:保留历史,只清工作树(旧 sha 永远可 clone,市场 pin 不悬空)
+  find "$DIST" -mindepth 1 -maxdepth 1 -not -name .git -exec rm -rf {} +
+else
+  rm -rf "$DIST"
+  mkdir -p "$DIST"
+  git -C "$DIST" init -q
+  git -C "$DIST" config user.name "Jzarkcn.sg"
+  git -C "$DIST" config user.email "icespot2005@gmail.com"
+fi
 git -C "$SRC" archive HEAD | tar -x -C "$DIST"
 
-git -C "$DIST" init -q
-git -C "$DIST" config user.name "Jzarkcn.sg"
-git -C "$DIST" config user.email "icespot2005@gmail.com"
 git -C "$DIST" add -A
 git -C "$DIST" commit -q -m "release: hermes-roi @ ${SRC_REV}"
-echo "dist: $DIST  (single commit @ ${SRC_REV})"
+echo "dist: $DIST  (release commit @ ${SRC_REV})"

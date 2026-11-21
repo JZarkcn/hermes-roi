@@ -1,0 +1,22 @@
+# plugin-catalog 条目草稿 —— 提交 PR 时复制为 hermes-agent/plugin-catalog/hermes-roi.yaml
+# 前提:封装版已 push 到公开仓库(见 docs/INSTALL-NEW-MACHINE.md 的 make-dist 流程)
+# sha 用 `git -C ../hermes-roi-dist rev-parse HEAD` 的 40 位全串,禁止分支/标签/短 sha
+name: hermes-roi
+title: "ROI — Return on Intelligence"
+version: "0.1.0"                # 与 plugin.yaml 同步;bump sha 的 PR 里一起改
+repo: https://github.com/JZarkcn/hermes-roi
+sha: "3685e92b154a65d3cbc7a9e52d46970f966b313c"
+description: "ROI measures your local-inference hardware payback on Hermes: recovery %, break-even date and a 4-tier verdict, live from your own sessions. Disclosure — reads state.db read-only (sessions/tokens/billing metadata across your local profiles; no raw messages); computes locally; no third-party network calls, no telemetry, no credentials read or stored; benchmark API prices, FX and electricity cost are whatever you type in."
+maintainer: JZarkcn
+tier: community
+category: desktop               # 可选:desktop|memory|platform|web|tools|voice|automation|models|general
+requires_hermes: ">=0.21.7"
+capabilities:
+  provides_tools: []
+  provides_hooks: []
+  provides_middleware: []
+  requires_env: []
+# screenshots 需在 pinned SHA 处可直接 raw 访问:
+#   https://raw.githubusercontent.com/Jzarkcn.sg/hermes-roi/<sha>/docs/screenshots/<name>.png
+# ⚠ 现有验证截图含本机真实金额,提交前须打码或改用样例数据截图
+# image: <同 SHA 的 banner.png>
