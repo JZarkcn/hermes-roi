@@ -378,9 +378,11 @@ _TIER_META = {
     TIER_UNKNOWN: "ONBOARDING — NOT ENOUGH HISTORY TO JUDGE.",
 }
 
-# Bilingual verdict copy from the original design mockup (owner, 2026-11-05):
-# Chinese line is the headline, English is the punchline. The roast is the
-# "// ..." line under the banner — sarcasm lives here, never in the math.
+# Bilingual verdict copy from the original design mockup (owner, 2026-11-05).
+# English-first per the catalog rule (maintainer review, 2026-11-22): the EN
+# _TIER_META line is the headline everywhere; the Chinese line is a secondary
+# subtitle. The roast is the "// ..." line under the banner — sarcasm lives
+# here, never in the math.
 _TIER_META_ZH = {
     TIER_PAID_OFF: "回本了·太强了！",
     TIER_SOON: "马上回本！",

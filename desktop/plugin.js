@@ -21,7 +21,9 @@
 // home-dashboard pair: id "home-dashboard" == manifest name).
 //
 // Layout v3 (2026-11-05, owner: "iterate on our original design mockup"):
-//  - Verdict banner: tier icon + "[ LV4 · 回本遥遥无期 ]" + EN punchline + roast.
+//  - Verdict banner: tier icon + "[ LV4 · PAYBACK IS A DISTANT DREAM ]"
+//    English-first (catalog rule, maintainer review 2026-11-22); Chinese copy
+//    stays as a secondary subtitle. Roast + countdown below.
 //  - Two panels: HARDWARE RECOVERY (3dp) | PROJECTED BREAK-EVEN + live countdown.
 //  - Stat strip: Hardware Cost / Cloud-Equivalent / Pace (30d) / Net ROI.
 //  - Row: CUMULATIVE SAVINGS SVG chart (solid actuals + dashed projection +
@@ -88,6 +90,7 @@ const S = {
   zz: { fontFamily: MONO, fontSize: 11, color: MUTED, letterSpacing: "0.1em" },
   bannerChip: { alignSelf: "flex-start", fontFamily: MONO, fontSize: 13, letterSpacing: "0.06em", padding: "3px 12px", border: "1px solid currentColor", borderRadius: 999, whiteSpace: "nowrap" },
   bannerEn: { fontSize: 30, fontWeight: 800, lineHeight: 1.12, letterSpacing: "0.005em", color: TEXT },
+  bannerZh: { fontSize: 14, fontWeight: 600, color: MUTED }, // Chinese subtitle under the EN headline
   bannerRoast: { fontFamily: MONO, fontSize: 16, fontWeight: 700, fontStyle: "italic", lineHeight: 1.35 },
   bannerClock: { fontFamily: MONO, fontSize: 22, fontWeight: 700, letterSpacing: "0.02em", lineHeight: 1.2 },
   bannerMain: { flex: "1 1 320px", minWidth: 240, display: "flex", flexDirection: "column", gap: 7 },
@@ -116,8 +119,10 @@ const S = {
   // ── tier ladder ─────────────────────────────────────────────────────
   ladder: { display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))", gap: 8 },
   tier: { display: "flex", gap: 8, alignItems: "center", border: `1px solid ${HAIRLINE}`, borderRadius: 6, padding: "8px 10px", background: CARD_BG },
+  // English-first ladder rows (maintainer review 2026-11-22): tierZh = headline
+  // slot (now carrying the EN line), tierSub = secondary Chinese subtitle.
   tierZh: { fontSize: 12, fontWeight: 600, lineHeight: 1.3 },
-  tierEn: { fontFamily: MONO, fontSize: 9, letterSpacing: "0.06em", color: MUTED, lineHeight: 1.4 },
+  tierSub: { fontSize: 9, color: MUTED, lineHeight: 1.4 },
 
   // ── T03 usage section (unchanged contract) ─────────────────────────
   label: { fontFamily: MONO, fontSize: 10, letterSpacing: "0.12em", textTransform: "uppercase", color: MUTED, marginBottom: 4 },
@@ -247,7 +252,7 @@ function VerdictBanner({ d }) {
     h("div", { style: S.bannerMain },
       h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
         h("span", { style: { ...S.bannerChip, color, fontWeight: 700 } },
-          `[ ${v.tier === "unknown" ? "ONBOARDING" : v.tier} · ${v.label_zh || "…"} ]`),
+          `[ ${v.tier === "unknown" ? "ONBOARDING" : v.tier} · ${v.label || "…"} ]`),
         // Option B (owner 2026-11-06): <30 days of history → provisional pace,
         // flagged in amber so the number isn't mistaken for the standard
         // 30-day basis (it flips to the real window on day 30).
@@ -256,10 +261,11 @@ function VerdictBanner({ d }) {
             fontSize: 11, fontWeight: 700, letterSpacing: 0.3, color: AMBER,
             background: `rgba(${TIER_RGB.LV3},0.16)`,
             border: `1px solid rgba(${TIER_RGB.LV3},0.5)`,
-            borderRadius: 20, padding: "2px 10px", whiteSpace: "nowrap",
+            borderRadius: 20, padding: "2px 10px", whiteSpace: "normal",
           },
-        }, `临时估算 · 基于 ${be && be.pace_days ? be.pace_days : "—"} 天（满 30 天转正式口径）`)),
+        }, `Provisional estimate · based on ${be && be.pace_days ? be.pace_days : "—"} days (switches to the 30-day basis on day 30)`)),
       h("div", { style: S.bannerEn }, v.label),
+      v.label_zh && h("div", { style: S.bannerZh }, v.label_zh),
       v.roast && h("div", { style: { ...S.bannerRoast, color } }, v.roast),
       clock),
   );
@@ -332,7 +338,7 @@ function StatStrip({ d }) {
       h("div", { style: S.statValue }, usd(d.gross_usd))),
     h("div", { style: S.stat },
       h("div", { style: S.statLabel },
-        d.verdict.provisional ? `Pace (${d.break_even.pace_days}d · 临时)` : "Pace (30d)"),
+        d.verdict.provisional ? `Pace (${d.break_even.pace_days}d · provisional)` : "Pace (30d)"),
       h("div", { style: S.statValue }, pace ? `$${parseFloat(pace).toFixed(3)}/day` : "—")),
     h("div", { style: S.stat },
       h("div", { style: S.statLabel }, "Net ROI"),
@@ -458,8 +464,8 @@ function TierLadder({ tier }) {
       },
         h("span", { style: { color } }, h(Icon, { kind: id, size: 18 })),
         h("div", { style: { display: "flex", flexDirection: "column", gap: 1, minWidth: 0 } },
-          h("div", { style: { ...S.tierZh, color: active ? color : TEXT } }, zh),
-          h("div", { style: S.tierEn }, en)));
+          h("div", { style: { ...S.tierZh, color: active ? color : TEXT } }, en),
+          h("div", { style: S.tierSub }, zh)));
     }));
 }
 
