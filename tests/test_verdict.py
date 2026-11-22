@@ -102,15 +102,22 @@ class TierTest(unittest.TestCase):
         self.assertEqual(v.tier, "LV1")
         self.assertEqual(v.recovery_text, "101.250")  # 100×8100/8000
 
-    def test_lv2_day90_inclusive(self):
-        # remaining 900 / pace 10 = exactly 90 days → day 90 is LV2 (inclusive)
+    def test_lv2_day180_inclusive(self):
+        # remaining 1800 / pace 10 = exactly 180 days → day 180 is LV2 (inclusive)
         v = vd.make_verdict(as_of=AS_OF, start_at=START, events=day90_fixture(),
-                            hardware_cost=D(9000))
+                            hardware_cost=D(9900))
         self.assertEqual(v.tier, "LV2")
-        self.assertEqual(v.break_even_date, date(2026, 11, 3) + timedelta(days=90))
-        self.assertEqual(v.break_even_date, date(2027, 2, 1))  # pinned near date
-        self.assertEqual(v.recovery_text, "90.000")
-        self.assertEqual(v.net_roi_text, "-10.000")
+        self.assertEqual(v.break_even_date, date(2026, 11, 3) + timedelta(days=180))
+        self.assertEqual(v.break_even_date, date(2027, 5, 2))  # pinned near date
+        self.assertEqual(v.recovery_text, "81.818")
+        self.assertEqual(v.net_roi_text, "-18.182")
+
+    def test_lv3_just_above_180(self):
+        # remaining 1810 / pace 10 = 181 days → past the day-180 line → LV3
+        v = vd.make_verdict(as_of=AS_OF, start_at=START, events=day90_fixture(),
+                            hardware_cost=D(9910))
+        self.assertEqual(v.tier, "LV3")
+        self.assertEqual(v.break_even_date, date(2026, 11, 3) + timedelta(days=181))
 
     def test_lv3_day1825_inclusive(self):
         # remaining 26350−8100 = 18250, pace 10 → exactly 1825 days → LV3

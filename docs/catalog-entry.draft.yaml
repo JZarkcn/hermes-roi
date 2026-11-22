@@ -3,9 +3,9 @@
 # sha 用 `git -C ../hermes-roi-dist rev-parse HEAD` 的 40 位全串,禁止分支/标签/短 sha
 name: hermes-roi
 title: "ROI — Return on Intelligence"
-version: "0.2.0"                # 与 plugin.yaml 同步;bump sha 的 PR 里一起改
+version: "0.1.0"                # PR 条目保持 0.1.0——maintainer 合入时自己 bump 0.2.0(review 11-22 明确)
 repo: https://github.com/JZarkcn/hermes-roi
-sha: "5bc901ef879bf34d912957996bc9c4197e11e65c"
+sha: "9d9e6cc50d987617eb2bb1de4226a44b96a24fab"
 description: "ROI measures your local-inference hardware payback on Hermes: recovery %, break-even date and a 4-tier verdict, live from your own sessions. Disclosure — reads state.db read-only (sessions/tokens/billing metadata across your local profiles; no raw messages); computes locally; no third-party network calls, no telemetry, no credentials read or stored; benchmark API prices, FX and electricity cost are whatever you type in."
 maintainer: JZarkcn
 tier: community

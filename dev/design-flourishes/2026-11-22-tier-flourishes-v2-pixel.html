@@ -1,0 +1,186 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>ROI tier flourishes — pixel v2 · LV2 candidates · 2026-11-22</title>
+<style>
+:root{--bg:#14161b;--panel:#1b1e25;--border:rgba(148,163,184,.22);--hair:rgba(148,163,184,.12);--text:#e6e9ef;--muted:#8b94a3;--mono:ui-monospace,'SF Mono',Menlo,monospace}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 var(--mono);padding:26px 22px 40px}
+h1{font-size:15px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 4px}
+h1 span{color:var(--text)}
+.sub{color:var(--muted);font-size:12px;margin:0 0 22px}
+h2{font-size:11px;letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:26px 0 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:880px){.grid{grid-template-columns:1fr}}
+.banner{position:relative;display:flex;gap:16px;align-items:center;border:1px solid var(--border);border-radius:4px;background:var(--panel);padding:16px 18px;overflow:hidden;min-height:150px}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(var(--rgb),.14),rgba(var(--rgb),.03) 55%,transparent);pointer-events:none}
+.deco{position:absolute;right:12px;bottom:-4px;width:150px;height:150px;opacity:.6;pointer-events:none;z-index:0}
+.main{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chip{align-self:flex-start;font-size:11px;font-weight:700;letter-spacing:.04em;padding:3px 10px;border:2px solid currentColor;border-radius:0;white-space:normal;max-width:96%}
+.en{font-size:24px;font-weight:800;line-height:1.18;font-family:-apple-system,'Segoe UI',sans-serif}
+.zh{font-size:13px;font-weight:600;color:var(--muted)}
+.clock{font-size:13px;letter-spacing:.02em;line-height:1.55;overflow-wrap:anywhere;color:var(--muted)}
+.ladder{display:grid;gap:8px}
+.lrow{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:880px){.lrow{grid-template-columns:1fr 1fr}}
+.tier{display:flex;gap:8px;align-items:center;border:2px solid var(--hair);border-radius:2px;padding:9px 10px;background:#191c22}
+.tier.active{border-color:var(--c);box-shadow:0 0 16px -8px var(--c)}
+.tier .ico{width:16px;height:16px;flex-shrink:0}
+.tier .txt{display:flex;flex-direction:column;min-width:0}
+.tier .tEn{font-size:11px;font-weight:600;line-height:1.35}
+.tier .tZh{font-size:9px;color:var(--muted)}
+.tier .pickTag{font-size:9px;color:var(--c);margin-left:auto}
+.note{margin:8px 0 0;color:var(--muted);font-size:11px}
+.tag{position:absolute;top:8px;right:10px;font-size:9px;letter-spacing:.1em;color:var(--muted);opacity:.8}
+svg{shape-rendering:crispEdges;image-rendering:pixelated}
+</style>
+</head>
+<body>
+<h1>ROI — <span>pixel flourishes</span> · LV2 候选待定 · 2026-11-22</h1>
+<p class="sub">像素画全部由 JS 画在 16×16 网格上,渲染为 SVG 方格——零图片嵌入。LV3 = 仓鼠轮(已定),LV1 金币堆 / LV4 蜘蛛网不动;本轮专挑 LV2。</p>
+
+<h2>① LV2「马上回本!」四候选(大点缀)</h2>
+<div class="grid" id="lv2"></div>
+<p class="note">宝箱 = 与 LV1 金币堆的叙事连续(开箱→金币堆);98% 进度条 = 「永远停在 98%」梗;火箭 = T-10 点火倒计时;靶心 = 上一版对照保留。</p>
+
+<h2>② 小尺寸对比(ladder 16px)</h2>
+<div class="ladder">
+  <div class="lrow" id="l2cands"></div>
+  <div class="lrow" id="lset"></div>
+</div>
+<p class="note">同一网格数据缩到 16px 直接替换 ladder 现有图标位;下图上排 = LV2 四候选小图,下排 = 全套(暂按进度条占位)。</p>
+
+<script>
+/* ── 16×16 pixel engine ── */
+const W=16;
+const mk=()=>new Uint8Array(W*W);
+const px=(g,x,y,v)=>{if(x>=0&&x<W&&y>=0&&y<W)g[y*W+x]=v;};
+const gv=(g,x,y)=>(x<0||x>=W||y<0||y>=W)?0:g[y*W+x];
+const circ=(g,cx,cy,r,v)=>{for(let y=0;y<W;y++)for(let x=0;x<W;x++){const dx=x-cx,dy=y-cy;if(dx*dx+dy*dy<=r*r)px(g,x,y,v);}};
+const line=(g,x1,y1,x2,y2,v)=>{const n=Math.max(Math.abs(x2-x1),Math.abs(y2-y1))||1;for(let i=0;i<=n;i++)px(g,Math.round(x1+(x2-x1)*i/n),Math.round(y1+(y2-y1)*i/n),v);};
+const thick=(g,x1,y1,x2,y2,v)=>{for(const[ox,oy]of[[0,0],[1,0],[0,1],[1,1]])px(g,x1+ox,y1+oy,v),px(g,x2+ox,y2+oy,v),line(g,x1+ox,y1+oy,x2+ox,y2+oy,v);};
+const box=(g,x,y,w,h,v)=>{for(let j=0;j<h;j++)for(let i=0;i<w;i++)px(g,x+i,y+j,v);};
+function outline(g,v){const b=[];for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(gv(g,x,y)===v){for(const[dx,dy]of[[1,0],[-1,0],[0,1],[0,-1]]){const n=gv(g,x+dx,y+dy);if(n===0||n===-1||n===undefined&&false){b.push([x,y]);break;}}}b.forEach(([x,y])=>px(g,x,y,1));}
+function hi(g,v){const a=[];for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(gv(g,x,y)===v){const t=gv(g,x,y-1),l=gv(g,x-1,y);const tb=(t===0||t===1),lb=(l===0||l===1);if(tb&&lb)a.push([x,y,4]);else if(tb||lb)a.push([x,y,3]);}a.forEach(([x,y,c])=>px(g,x,y,c));}
+function shade(g,v){const a=[];for(let y=0;y<W;y++)for(let x=0;x<W;x++)if(gv(g,x,y)===v){const b=gv(g,x,y+1),r=gv(g,x+1,y);if((b===0||b===-1)||(r===0||r===-1))a.push([x,y]);}a.forEach(([x,y])=>px(g,x,y,5));}
+const SPK=[[0,1,0],[1,1,1],[0,1,0]];
+const D9=["###","#.#","###",".#",".#"].map(r=>[...r].map(c=>c==="#"?1:0));
+const D8=["###","#.#","#.#"].map(r=>[...r].map(c=>c==="#"?1:0)).concat([["#.#","#.#","#.#"].map(()=>1?0:0)]);
+function stamp(g,m,x,y,v){for(let j=0;j<m.length;j++)for(let i=0;i<m[j].length;i++)if(m[j][i])px(g,x+i,y+j,v);}
+
+/* global fixed colors: 6 wood, 7 wood-dark, 8 gold, 9 flame */
+const FIX={6:"#8a5a10",7:"#4a2a08",8:"#fcd34d",9:"#fb923c"};
+const PAL={
+ LV1:{1:"#22190a",2:"#fcd34d",3:"#fef08a",4:"#fffbe6",5:"#8a5a10"},
+ LV2:{1:"#0d2b16",2:"#4ade80",3:"#bef264",4:"#f2fefe",5:"#1d6b35"},
+ LV3:{1:"#241304",2:"#fb923c",3:"#ffd8a8",4:"#fff5e8",5:"#7c3c10"},
+ LV4:{1:"#1c1140",2:"#a78bfa",3:"#d8c7fd",4:"#f6efff",5:"#4c2e8e"},
+};
+
+/* ── glyph painters ── */
+const G={
+ coins(){const g=mk();const coin=(c,r,y0,y1)=>{circ(g,c,r,r,2);for(let y=y0;y<=y1;y++)line(g,c-r+1,y,c+r-1,y,5);outline(g,2);hi(g,2);};
+  coin(6,12,11,13);coin(11,12,11,13);coin(4,12,12,13);coin(9,12,12,13);coin(7,13,13,13);
+  stamp(g,[["###","#..#","###","..#","###"].map((r,i)=>[...r].map(c=>c==="#"?1:0))].length?D9:0,0,0,0); // noop keep lint
+  stamp(g,[["#.#","###","#.#"].map(s=>[...s].map(c=>c==="#"?1:0))],11,4,4); // sparkles
+  px(g,3,10,4);px(g,14,9,4);px(g,2,5,4);px(g,13,3,4);
+  // diamond gem on front coin
+  for(const[dx,dy,v]of[[0,-1,3],[-1,0,3],[0,0,4],[1,0,2],[0,1,2]])px(g,12+dx,5+dy,v);
+  return g;},
+ chest(){const g=mk(); // lid slightly open, light leaking
+  box(g,3,1,10,3,6);outline(g,6);shade(g,6);
+  // light gap
+  box(g,2,4,12,1,8);px(g,2,4,1);px(g,13,4,1);
+  box(g,2,5,12,2,8);px(g,4,5,3);px(g,6,5,4);px(g,9,5,3);px(g,11,5,4);px(g,3,6,3);px(g,8,6,4);px(g,12,6,3);
+  px(g,1,4,3);px(g,14,4,3);px(g,0,2,4);px(g,15,3,4);px(g,7,2,3); // glow edges
+  // chest bottom
+  box(g,2,7,12,7,6);outline(g,6);shade(g,6);px(g,3,8,3);px(g,3,9,3);
+  // ribbon (tier colour vertical)
+  box(g,7,7,2,7,2);outline(g,2);
+  // lock plate bottom-front
+  box(g,6,12,4,3,8);outline(g,8);px(g,8,13,7);px(g,8,14,7);
+  return g;},
+ rocket(){const g=mk();
+  // body
+  box(g,6,2,4,8,2);outline(g,2);hi(g,2);
+  // nose already round top; window
+  px(g,7,4,4);px(g,8,4,4);px(g,7,5,4);px(g,8,5,4);
+  // fins
+  px(g,5,7,2);px(g,4,8,2);px(g,3,9,2);px(g,2,10,2);px(g,10,7,2);px(g,11,8,2);px(g,12,9,2);px(g,13,10,2);
+  // flame
+  box(g,6,10,4,2,9);box(g,7,12,2,2,8);px(g,8,14,9);px(g,7,13,4);
+  // exhaust sparks
+  px(g,4,12,4);px(g,11,13,4);px(g,5,14,4);px(g,12,14,4);px(g,6,15,4);px(g,9,15,4);
+  // side sparks
+  px(g,2,3,3);px(g,13,2,3);
+  return g;},
+ load(){const g=mk();
+  box(g,1,6,14,4,2);outline(g,2);
+  // 98% fill = leave last col empty-ish, mark 4 at head
+  for(let x=1;x<=12;x++)for(let y=6;y<=9;y++)px(g,x,y,2);
+  for(let y=6;y<=9;y++)px(g,1,y,3);
+  for(let x=2;x<=4;x++)px(g,x,6,4);px(g,2,7,4);
+  // motion dashes behind bar
+  px(g,0,12,3);px(g,1,12,3);px(g,0,13,3);px(g,2,13,3);
+  // 98 text (5 tall digits at top)
+  stamp(g,[["###","#.#","###",".#",".#"]].length?D9:D9,5,0,3);
+  stamp(g,[["###","#.#","###","#.#","###"]].map(r=>[...r].map(c=>c==="#"?1:0)),9,0,3);
+  return g;},
+ target(){const g=mk();circ(g,7.5,7.5,2,4);circ(g,7.5,7.5,1,3);px(g,7,7,2);
+  const ring=(r,v)=>{for(let y=0;y<W;y++)for(let x=0;x<W;x++){const dx=x-7.5,dy=y-7.5,d2=dx*dx+dy*dy;if(d2<=r*r&&d2>(r-1)*(r-1)&&d2<r*r-0.2)px(g,x,y,v);}};
+  ring(6,2);ring(4,2);
+  // arrow shaft+feather
+  thick(g,9,6,14,11,1);thick(g,10,8,13,5,5);thick(g,12,12,9,13?13:12,5);
+  return g;},
+ wheel(){const g=mk();for(let y=0;y<W;y++)for(let x=0;x<W;x++){const dx=x-7.5,dy=y-8,d2=dx*dx+dy*dy;if(d2<=49&&d2>38)px(g,x,y,2);}
+  line(g,7,1,7,15,1);line(g,1,8,15,8,1);line(g,3,4,12,13,1);line(g,12,4,3,13,1);
+  circ(g,7.5,8,2.4,2);outline(g,2);hi(g,2);
+  line(g,4,12,4,14,1);line(g,11,12,11,14,1);line(g,4,14,7,15,1);line(g,11,14,7,15,1);
+  return g;},
+ web(){const g=mk();
+  for(let deg=8;deg<=86;deg+=13){const a=deg*Math.PI/180;for(const r of[4,7,10]){const rx=Math.round(W-1-Math.cos(a)*r),ry=Math.round(Math.sin(a)*r);if(rx>=0&&rx<W&&ry>=0&&ry<W)px(g,rx,ry,1);}}
+  for(let t=2;t<=8;t+=2)line(g,W-1-t*0.35,t*0.5,W-1,t,1);
+  line(g,15,15,14,3,1);thick(g,15,15,14,3,1);
+  circ(g,13,13,1.6,1);px(g,13,13,4);
+  for(const[dx,dy]of[[-2,-2],[2,-2],[-2,0],[2,0],[-2,2],[2,2]])px(g,13+dx,13+dy,1);
+  px(g,12,10,4);px(g,14,10,4);px(g,12,6,4);px(g,14,14,4);px(g,15,12,4);px(g,11,13,4);
+  line(g,10,4,11,4,1);line(g,12,3,13,3,1);
+  return g;},
+ hour(){const g=mk();const tri=(y0,y1,inn)=>{for(let y=y0;y<=y1;y++){const t=(y-y0)/((y1-y0)||1);const x0=Math.round(3+t*3.5),x1=Math.round(12-t*3.5);px(g,x0-1,y,1);px(g,x1+1,y,1);if(inn)line(g,x0,y,x1,y,inn);}};
+  tri(2,8,true);tri(9,15,false);
+  box(g,3,1,10,1,1);box(g,3,8,10,1,1);box(g,3,9,10,1,1);box(g,3,15,10,1,1);
+  box(g,6,5,4,2,2);box(g,4,11,7,3,3);hi(g,3);line(g,8,10,8,12,2);
+  return g;},
+};
+
+/* grid → svg */
+function gridSVG(g,pal,px=16){let r="";for(let y=0;y<W;y++)for(let x=0;x<W;x++){const v=g[y*W+x];if(!v)continue;const c=pal[v]||FIX[v];if(!c)continue;r+=`<rect x="${x}" y="${y}" width="1" height="1" fill="${c}"/>`;}
+ return `<svg viewBox="0 0 16 16" width="${px}" height="${px}" xmlns="http://www.w3.org/2000/svg" style="width:100%;height:100%;display:block">${r}</svg>`;}
+
+const LV2C=[["chest","宝箱 · 微开漏金光",G.chest],["load","98% 进度条",G.load],["rocket","火箭 T-10 点火",G.rocket],["target","靶心(旧对照)",G.target]];
+const EN="ALMOST THERE.",ZH="马上回本！";
+const lv2=document.getElementById("lv2");
+for(const[id,name,fn]of LV2C){const g=fn();
+ lv2.insertAdjacentHTML("beforeend",`
+ <div class="banner" style="--rgb:74,222,128;color:#4ade80;box-shadow:0 0 40px -14px #4ade8055">
+  <span class="tag">LV2 · ${name}</span>
+  <div class="main">
+   <div><span class="chip">[ LV2 · ${EN} ]</span></div>
+   <div class="en" style="color:var(--text)">${EN}</div>
+   <div class="zh">${ZH}</div>
+   <div class="clock">68 Y 11 MO → 30 D 12 H 52 M 46 S</div>
+  </div>
+  <div class="deco" style="color:#4ade80">${gridSVG(g,PAL.LV2)}</div>
+ </div>`);}
+const l2=document.getElementById("l2cands");
+for(const[id,name,fn]of LV2C){const g=fn();
+ l2.insertAdjacentHTML("beforeend",`<div class="tier"><div class="ico">${gridSVG(g,PAL.LV2)}</div><div class="txt"><span class="tEn">${name}</span><span class="tZh">LV2 16px</span></div></div>`);}
+const SET=[["LV1",G.coins,"金币堆","回本了·太强了！","PAID OFF. ABSOLUTE LEGEND."],["LV2",G.load,"进度条(占位)","马上回本！","ALMOST THERE."],["LV3",G.wheel,"仓鼠轮","还差得远·再接再厉！","STILL A LONG WAY. KEEP GRINDING."],["LV4",G.web,"蜘蛛网","回本遥遥无期！","PAYBACK IS A DISTANT DREAM."]];
+const C={LV1:"#fcd34d",LV2:"#4ade80",LV3:"#fb923c",LV4:"#a78bfa"};
+const ls=document.getElementById("lset");
+for(const[t,fn,name,zh,en]of SET){const g=fn();
+ ls.insertAdjacentHTML("beforeend",`<div class="tier active" style="--c:${C[t]}"><div class="ico">${gridSVG(g,PAL[t])}</div><div class="txt"><span class="tEn" style="color:${C[t]}">${en}</span><span class="tZh">${zh}</span></div><span class="pickTag">${name}</span></div>`);}
+</script>
+</body>
+</html>

@@ -104,7 +104,7 @@ Do not silently substitute fabricated sample data for live integration.
 
 ### Product rules
 - Hero recovery % is displayed to exactly three decimal places (formula: see Key math).
-- Exactly four verdict tiers: LV1 paid off, LV2 within 90 days, LV3 within five years, LV4 farther away or no positive trajectory. Missing history is an onboarding/unknown state.
+- Exactly four verdict tiers: LV1 paid off, LV2 within 180 days (owner ruling 2026-11-22, was 90), LV3 within five years, LV4 farther away or no positive trajectory. Missing history is an onboarding/unknown state.
 - Never count a cloud-hosted model as local inference just because its name contains qwen or another local model family.
 - Never count reasoning or cache tokens twice. If source semantics are unclear, mark data coverage unknown and write an audit note before charging it.
 - The user-selected effective start time and selected runtime profile are always explicit settings.

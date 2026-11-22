@@ -113,6 +113,10 @@ const S = {
   setRow: { display: "grid", gridTemplateColumns: "120px 1fr", gap: 10, alignItems: "center", padding: "4px 0", borderBottom: `1px solid ${HAIRLINE}` },
   setLabel: { fontFamily: MONO, fontSize: 10, letterSpacing: "0.1em", textTransform: "uppercase", color: MUTED },
   input: { fontFamily: MONO, fontSize: 11, padding: "4px 7px", border: `1px solid ${BORDER}`, borderRadius: 4, background: "transparent", color: TEXT, width: "100%", boxSizing: "border-box" },
+  // value + unit as one compact box (electricity row: $ rate and kWh/mo)
+  affix: { display: "flex", alignItems: "center", border: `1px solid ${BORDER}`, borderRadius: 4, background: "transparent", overflow: "hidden" },
+  affixInput: { fontFamily: MONO, fontSize: 11, padding: "4px 4px 4px 7px", border: "none", background: "transparent", color: TEXT, width: 62, textAlign: "right" },
+  affixUnit: { fontFamily: MONO, fontSize: 9, color: MUTED, letterSpacing: "0.05em", whiteSpace: "nowrap", paddingRight: 6 },
   hint: { fontFamily: MONO, fontSize: 10, color: MUTED, lineHeight: 1.4 },
   warn: { fontFamily: MONO, fontSize: 10, color: YELLOW, lineHeight: 1.4 },
 
@@ -226,6 +230,141 @@ function Icon({ kind, size = 22, color }) {
   }, h("path", { d: paths[kind] || paths.unknown }));
 }
 
+// ── pixel-art tier flourishes (owner 2026-11-22: "换成像素风的" + "用1") ──
+// Painted on a 16×16 grid at module load, rendered as crisp SVG rects —
+// no bitmaps, no external assets, same renderer for the big (banner) and
+// small (ladder) sizes. Glyphs: LV1 stacked gold ingots, LV2 slightly-open
+// chest leaking gold, LV3 donkey at the mill (拉磨的驴), LV4 tombstone.
+// 2026-11-22: wheel→donkey and web→tombstone were owner symbol-swaps —
+// radial/circular motifs collapse at 16px; solid silhouettes don't.
+const FX_PAL = {
+  LV1: { 1: "#22190a", 2: "#fcd34d", 3: "#fef08a", 4: "#fffbe6", 5: "#8a5a10" },
+  LV2: { 1: "#0d2b16", 2: "#4ade80", 3: "#bef264", 4: "#f2fefe", 5: "#1d6b35" },
+  LV3: { 1: "#241304", 2: "#fb923c", 3: "#ffd8a8", 4: "#fff5e8", 5: "#7c3c10" },
+  LV4: { 1: "#241340", 2: "#a78bfa", 3: "#d8c7fd", 4: "#f6efff", 5: "#7a5ec7" },
+};
+// Fixed colours used across tiers: wood / wood-dark / gold / flame.
+const FX_FIX = { 6: "#8a5a10", 7: "#4a2a08", 8: "#fcd34d", 9: "#fb923c" };
+const FX_GLYPH = { LV1: "bars", LV2: "chest", LV3: "donkey", LV4: "tomb" };
+const W16 = 16;
+const fxMk = () => new Uint8Array(256);
+const fxPx = (g, x, y, v) => { if (x >= 0 && x < W16 && y >= 0 && y < W16) g[y * W16 + x] = v; };
+const fxGv = (g, x, y) => (x < 0 || x >= W16 || y < 0 || y >= W16 ? 0 : g[y * W16 + x]);
+const fxCirc = (g, cx, cy, r, v) => { for (let y = 0; y < W16; y++) for (let x = 0; x < W16; x++) { const dx = x - cx, dy = y - cy; if (dx * dx + dy * dy <= r * r) fxPx(g, x, y, v); } };
+const fxLine = (g, x1, y1, x2, y2, v) => { const n = Math.max(Math.abs(x2 - x1), Math.abs(y2 - y1)) || 1; for (let i = 0; i <= n; i++) fxPx(g, Math.round(x1 + (x2 - x1) * i / n), Math.round(y1 + (y2 - y1) * i / n), v); };
+const fxBox = (g, x, y, w, h_, v) => { for (let j = 0; j < h_; j++) for (let i = 0; i < w; i++) fxPx(g, x + i, y + j, v); };
+function fxOutline(g, v) { const b = []; for (let y = 0; y < W16; y++) for (let x = 0; x < W16; x++) if (fxGv(g, x, y) === v) { for (const [dx, dy] of [[1, 0], [-1, 0], [0, 1], [0, -1]]) { const n = fxGv(g, x + dx, y + dy); if (n === 0) { b.push([x, y]); break; } } } b.forEach(([x, y]) => fxPx(g, x, y, 1)); }
+function fxHi(g, v) { const a = []; for (let y = 0; y < W16; y++) for (let x = 0; x < W16; x++) if (fxGv(g, x, y) === v) { const t = fxGv(g, x, y - 1), l = fxGv(g, x - 1, y); const tb = t === 0 || t === 1, lb = l === 0 || l === 1; if (tb && lb) a.push([x, y, 4]); else if (tb || lb) a.push([x, y, 3]); } a.forEach(([x, y, c]) => fxPx(g, x, y, c)); }
+const FX_PAINTERS = {
+  bars() {
+    // Owner 2026-11-22: "如果金币不好渲染,可以试试堆叠在一起的金条" + "金条
+    // 肯定要用梯形的吧" + "梯形再明显一点,周围光点换成辐射光线" — wider
+    // 5×3 ingots (bright 3-wide top face, shoulders stepping out to a 5-wide
+    // base = unmistakable trapezoid); the sparkle dots became radiating rays.
+    // 2026-11-22 QA round 2: the white centred glints read as wrong grey
+    // squares and a flat 1-row top read as a plain rectangle — now each ingot
+    // is 5×4 with a TRAPEZOID top face (far edge 1px over a 3px near edge),
+    // slanted side bevels and a wide dark base row; rays use bright gold (3).
+    const g = fxMk();
+    const bar = (x, y) => {                                                                   // 5×4
+      fxPx(g, x + 2, y, 4);                                                                   // top face far edge (white glint)
+      fxPx(g, x + 1, y + 1, 3); fxPx(g, x + 2, y + 1, 3); fxPx(g, x + 3, y + 1, 3);           // top face near edge
+      fxPx(g, x, y + 2, 5); fxPx(g, x + 4, y + 2, 5);                                         // slanted side bevels
+      fxPx(g, x + 1, y + 2, 2); fxPx(g, x + 2, y + 2, 2); fxPx(g, x + 3, y + 2, 2);           // gold front
+      fxPx(g, x, y + 3, 5); fxPx(g, x + 1, y + 3, 5); fxPx(g, x + 2, y + 3, 5); fxPx(g, x + 3, y + 3, 5); fxPx(g, x + 4, y + 3, 5); // wide dark base
+    };
+    [[0, 11], [5, 11], [10, 11]].forEach(([x, y]) => bar(x, y));            // bottom row of three
+    [[2, 7], [7, 7]].forEach(([x, y]) => bar(x, y));                        // middle row over the seams
+    bar(4, 3);                                                               // crown bar
+    const rays = [[[2, 2], [0, 0]], [[12, 2], [14, 0]], [[5, 0], [5, 2]], [[10, 0], [10, 2]], [[0, 8], [1, 8]], [[14, 8], [15, 8]]]; // radiating light
+    rays.forEach(([a, b]) => fxLine(g, a[0], a[1], b[0], b[1], 4));
+    return g;
+  },
+  chest() {
+    const g = fxMk();
+    fxBox(g, 3, 1, 10, 3, 6); fxOutline(g, 6);           // lid
+    fxBox(g, 2, 4, 12, 1, 8); fxPx(g, 2, 4, 1); fxPx(g, 13, 4, 1); // gold rim at the crack
+    fxBox(g, 2, 5, 12, 2, 8);                             // light leaking through the gap
+    [[4, 5, 3], [6, 5, 4], [9, 5, 3], [11, 5, 4], [3, 6, 3], [8, 6, 4], [12, 6, 3]].forEach(([x, y, v]) => fxPx(g, x, y, v)); // glow sparkles
+    // Owner 2026-11-22: "箱子打开的一条缝两边画辐射光线" — rays bursting out
+    // left and right of the crack.
+    fxLine(g, 1, 4, 0, 2, 4); fxLine(g, 1, 6, 0, 8, 4);
+    fxLine(g, 14, 4, 15, 2, 4); fxLine(g, 14, 6, 15, 8, 4);
+    fxLine(g, 0, 5, 0, 6, 4); fxLine(g, 15, 5, 15, 6, 4);
+    fxBox(g, 2, 7, 12, 7, 6); fxOutline(g, 6);            // body
+    fxBox(g, 7, 7, 2, 7, 2); fxOutline(g, 2);             // tier-colour ribbon
+    fxBox(g, 6, 12, 4, 3, 8); fxOutline(g, 8);            // gold lock
+    fxPx(g, 8, 13, 7); fxPx(g, 8, 14, 7);                 // keyhole
+    return g;
+  },
+  // Banner donkey-at-the-mill — 2026-11-22 rework #6: owner swapped the
+  // hamster wheel for 拉磨的驴 ("这么小的像素也画不出来，有什么其他替代方案"
+  // → 拉磨的驴): "keep at it" is literal donkey work. Side view: long-eared
+  // donkey with muzzle to the central axle beam, the beam plugged into a
+  // flat two-tier millstone, flour spilling off its right edge. No circles
+  // anywhere, so nothing collapses into wheel-soup.
+  donkey() {
+    const g = fxMk();
+    fxLine(g, 0, 13, 15, 13, 5);                                   // ground
+    fxBox(g, 7, 10, 7, 1, 5); fxBox(g, 8, 11, 5, 1, 7); fxBox(g, 8, 12, 7, 1, 5); // lower stone
+    fxBox(g, 7, 7, 5, 3, 2); fxPx(g, 7, 7, 3); fxPx(g, 8, 7, 3); fxPx(g, 9, 7, 3); // upper stone, lit rim
+    fxLine(g, 9, 3, 9, 7, 6); fxPx(g, 9, 3, 4);                     // axle beam + cap
+    fxBox(g, 6, 4, 3, 2, 2); fxPx(g, 7, 4, 4); fxPx(g, 8, 5, 4);   // head + eye + muzzle at the beam
+    fxLine(g, 6, 2, 6, 3, 2); fxLine(g, 7, 2, 7, 3, 2);            // long ears
+    fxLine(g, 6, 6, 5, 7, 2); fxPx(g, 5, 6, 2);                    // neck
+    fxBox(g, 1, 7, 5, 3, 2);                                        // body
+    fxLine(g, 1, 10, 1, 12, 5); fxLine(g, 2, 10, 2, 12, 5);         // hind legs
+    fxLine(g, 4, 10, 4, 12, 5); fxLine(g, 5, 10, 5, 12, 5);         // front legs
+    fxLine(g, 0, 6, 0, 8, 3);                                       // tail flick
+    fxPx(g, 14, 12, 4); fxPx(g, 15, 12, 4); fxPx(g, 15, 11, 4);     // flour spill
+    return g;
+  },
+  // Banner tombstone — 2026-11-22 rework #5: owner dropped the orb web for a
+  // new symbol ("蜘蛛网画不好的话，推荐一下其他象征" → chose 墓碑). It IS the
+  // LV4 roast gag — "at this rate your next GPU will retire first": dome
+  // headstone with a glowing engraved cross, one ground line, nothing else.
+  tomb() {
+    const g = fxMk();
+    const tops = [6, 5, 4, 3, 3, 3, 3, 4, 5, 6];                  // dome silhouette, x = 3..12
+    for (let i = 0; i < 10; i++) {
+      const x = 3 + i;
+      for (let y = tops[i]; y <= 12; y++) fxPx(g, x, y, 2);       // stone body
+      fxPx(g, x, tops[i], 3);                                      // dome lip highlight
+      if (i === 0) for (let y = 6; y <= 12; y++) fxPx(g, x, y, 3); // left edge lit
+      if (i === 9) for (let y = 6; y <= 12; y++) fxPx(g, x, y, 5); // right edge shaded
+    }
+    fxLine(g, 8, 5, 8, 10, 4); fxLine(g, 5, 7, 10, 7, 4);         // glowing cross
+    fxLine(g, 0, 13, 15, 13, 5);                                   // ground line
+    return g;
+  },
+};
+const FX_CACHE = {};
+function fxGrid(tier, small) {
+  const base = FX_GLYPH[tier];
+  if (!base) return null;
+  // webMini was deleted together with the ladder icons (owner 2026-11-22:
+  // at 16px nothing ever read — the orb web even as a "lilac eye").
+  const ck = `${tier}:${base}`;
+  if (!FX_CACHE[ck]) FX_CACHE[ck] = FX_PAINTERS[base]();
+  return FX_CACHE[ck];
+}
+function PixelFlourish({ tier, size = 16, style }) {
+  const g = fxGrid(tier, size < 40);
+  if (!g) return null;
+  const pal = FX_PAL[tier];
+  const rects = [];
+  for (let y = 0; y < W16; y++) for (let x = 0; x < W16; x++) {
+    const v = g[y * W16 + x];
+    if (!v) continue;
+    const c = pal[v] || FX_FIX[v];
+    if (c) rects.push(h("rect", { key: `${x}-${y}`, x, y, width: 1, height: 1, fill: c }));
+  }
+  return h("svg", {
+    width: size, height: size, viewBox: "0 0 16 16", shapeRendering: "crispEdges",
+    style: { display: "block", ...style },
+  }, ...rects);
+}
+
 // ── verdict hero (icon + [ LVn · zh ] + EN + roast + big countdown) ─────
 function VerdictBanner({ d }) {
   const v = d.verdict;
@@ -244,12 +383,13 @@ function VerdictBanner({ d }) {
       borderLeft: `5px solid ${color}`,
       background: `linear-gradient(120deg, rgba(${rgb},0.22), rgba(${rgb},0.06) 55%, transparent)`,
       boxShadow: `0 0 52px -12px rgba(${rgb},0.6)`,
+      position: "relative", overflow: "hidden",
     },
   },
     h("div", { style: { ...S.bannerIcon, color } },
       h(Icon, { kind: v.tier, size: 44 }),
       v.tier === "LV4" && h("span", { style: S.zz }, "z z z")),
-    h("div", { style: S.bannerMain },
+    h("div", { style: { ...S.bannerMain, position: "relative", zIndex: 1 } },
       h("div", { style: { display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" } },
         h("span", { style: { ...S.bannerChip, color, fontWeight: 700 } },
           `[ ${v.tier === "unknown" ? "ONBOARDING" : v.tier} · ${v.label || "…"} ]`),
@@ -268,6 +408,12 @@ function VerdictBanner({ d }) {
       v.label_zh && h("div", { style: S.bannerZh }, v.label_zh),
       v.roast && h("div", { style: { ...S.bannerRoast, color } }, v.roast),
       clock),
+    // Pixel flourish (owner 2026-11-22): big bottom-right decoration in the
+    // verdict box, under the text layer, clipped by the rounded corners.
+    v.tier !== "unknown" && h("div", {
+      key: "flourish",
+      style: { position: "absolute", right: 14, bottom: -6, zIndex: 0, pointerEvents: "none", opacity: 0.55 },
+    }, h(PixelFlourish, { tier: v.tier, size: 104 })),
   );
 }
 
@@ -433,8 +579,12 @@ function Settings({ cfg, save, models, defaultModel, applied, primary }) {
       h("div", { style: { ...S.setRow, borderBottom: "none" } },
         h("div", { style: S.setLabel }, "Electricity (opt.)"),
         h("div", { style: { display: "flex", gap: 8 } },
-          h("input", { style: { ...S.input, flex: "1 1 0", minWidth: 80 }, value: cfg.ep, onChange: save("ep"), inputMode: "decimal", placeholder: "$/kWh" }),
-          h("input", { style: { ...S.input, flex: "1 1 0", minWidth: 80 }, value: cfg.ek, onChange: save("ek"), inputMode: "decimal", placeholder: "kWh / mo" })))
+          h("div", { style: S.affix },
+            h("input", { style: S.affixInput, value: cfg.ep, onChange: save("ep"), inputMode: "decimal", placeholder: "0.266" }),
+            h("span", { style: S.affixUnit }, "$/kWh")),
+          h("div", { style: S.affix },
+            h("input", { style: S.affixInput, value: cfg.ek, onChange: save("ek"), inputMode: "decimal", placeholder: "10" }),
+            h("span", { style: S.affixUnit }, "kWh/mo"))))
     ),
     energyHalf && h("div", { style: S.warn },
       "electricity needs BOTH a $/kWh rate and a monthly kWh estimate — or leave both empty (gross = net)."),
@@ -462,7 +612,10 @@ function TierLadder({ tier }) {
         key: id,
         style: { ...S.tier, opacity: active ? 1 : 0.4, border: active ? `1px solid ${color}` : S.tier.border, boxShadow: active ? `0 0 22px -10px ${color}` : "none" },
       },
-        h("span", { style: { color } }, h(Icon, { kind: id, size: 18 })),
+        // Owner 2026-11-22: "下面那一排小图标根本看不清，都删除" — the 16px
+        // pixel flourishes were illegible; ladder rows are labels only now.
+        // The line-icon robot-head stays for the unknown/onboarding row.
+        id === "unknown" ? h("span", { style: { color } }, h(Icon, { kind: id, size: 18 })) : null,
         h("div", { style: { display: "flex", flexDirection: "column", gap: 1, minWidth: 0 } },
           h("div", { style: { ...S.tierZh, color: active ? color : TEXT } }, en),
           h("div", { style: S.tierSub }, zh)));

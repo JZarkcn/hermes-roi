@@ -1,5 +1,5 @@
 name: hermes-roi
-version: "0.2.0"
+version: "0.3.0"
 manifest_version: 2
 api_version: 1
 description: "ROI — Return on Intelligence: estimates the hypothetical cloud API cost of the local inference recorded in a profile's session store. Read-only, no telemetry, no writes. Savings are labeled estimates, never realized revenue."

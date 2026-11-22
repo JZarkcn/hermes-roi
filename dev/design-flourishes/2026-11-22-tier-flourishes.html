@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="zh">
+<head>
+<meta charset="utf-8">
+<title>ROI tier flourishes — 2026-11-22 proposal</title>
+<style>
+:root{
+  --bg:#14161b; --panel:#1b1e25; --border:rgba(148,163,184,.22); --hair:rgba(148,163,184,.12);
+  --text:#e6e9ef; --muted:#8b94a3; --mono:ui-monospace,'SF Mono',Menlo,monospace;
+  --gold:#fcd34d; --green:#4ade80; --amber:#fb923c; --purple:#a78bfa;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--text);font:14px/1.45 -apple-system,'Segoe UI',sans-serif;padding:26px 22px 40px}
+h1{font:600 15px/1.2 var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:0 0 4px}
+h1 span{color:var(--text)}
+.sub{color:var(--muted);font-size:12px;margin:0 0 22px}
+h2{font:700 11px var(--mono);letter-spacing:.14em;color:var(--muted);text-transform:uppercase;margin:26px 0 12px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:860px){.grid{grid-template-columns:1fr}}
+
+/* ── banner mock ── */
+.banner{position:relative;display:flex;gap:16px;align-items:center;border:1px solid var(--border);border-radius:10px;background:var(--panel);padding:18px 20px;overflow:hidden;min-height:150px}
+.banner::after{content:"";position:absolute;inset:0;background:linear-gradient(120deg,rgba(var(--rgb),.16),rgba(var(--rgb),.04) 55%,transparent),0 0 0 0;pointer-events:none}
+.deco{position:absolute;right:14px;bottom:-6px;width:150px;height:150px;opacity:.5;pointer-events:none;z-index:0}
+.deco.web{right:0;top:-8px;bottom:auto}
+.l{fill:none;stroke:currentColor;stroke-width:2.2;stroke-linecap:round;stroke-linejoin:round}
+.bannerIcon{flex-shrink:0;width:56px;height:56px;border-radius:8px;display:flex;flex-direction:column;align-items:center;justify-content:center;border:1px solid var(--hair);font:400 10px var(--mono);letter-spacing:.1em}
+.main{position:relative;z-index:1;flex:1;display:flex;flex-direction:column;gap:6px;min-width:0}
+.chip{align-self:flex-start;font:700 12px var(--mono);letter-spacing:.05em;padding:3px 11px;border:1px solid currentColor;border-radius:99px;white-space:normal;max-width:95%}
+.en{font-size:26px;font-weight:800;line-height:1.15}
+.zh{font-size:13px;font-weight:600;color:var(--muted)}
+.roast{font:italic 700 13px var(--mono)}
+.clock{font:700 14px var(--mono);letter-spacing:.02em;line-height:1.55;overflow-wrap:anywhere}
+.row2{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.ladder{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+@media(max-width:860px){.ladder{grid-template-columns:1fr 1fr}}
+.tier{display:flex;gap:8px;align-items:center;border:1px solid var(--hair);border-radius:6px;padding:9px 10px;background:#191c22}
+.tier .ico{width:18px;height:18px;flex-shrink:0}
+.tier .txt{display:flex;flex-direction:column;min-width:0}
+.tier .tEn{font-size:11px;font-weight:600;line-height:1.35}
+.tier .tZh{font-size:9px;color:var(--muted)}
+.note{margin:8px 0 0;color:var(--muted);font-size:11.5px}
+.note code{font:11px var(--mono);background:#22262e;padding:1px 5px;border-radius:4px;color:#c9d1dd}
+.tag{position:absolute;top:10px;right:12px;font:700 9px var(--mono);letter-spacing:.12em;color:var(--muted);opacity:.7}
+</style>
+</head>
+<body>
+<h1>ROI — <span>tier flourish elements</span> · 2026-11-22 提案</h1>
+<p class="sub">大点缀 = banner 右上/右下(半透明,部分出血);小点缀 = ladder 行 18px 图标位。LV2/LV3 各给两个候选。</p>
+
+<h2>① 顶部 banner(大点缀)</h2>
+<div class="grid" id="banners"></div>
+<p class="note">大点缀只加在 banner 一层(opacity ≈ .45–.5,右下或右上角出血),不与文字抢层级;倒计时与 roast 保持现状。</p>
+
+<h2>② tier ladder(小点缀 = 现有行图标位)</h2>
+<div class="ladder" id="ladder"></div>
+<p class="note">ladder 现有 tier 图标(18px)直接换成点缀图形,同一 SVG 缩放复用,<code>&lt;svg viewBox="0 0 64 64"&gt;</code> 大小同路径。</p>
+
+<svg style="display:none" viewBox="0 0 64 64" xmlns="http://www.w3.org/2000/svg"><defs>
+<g id="coins"><circle cx="18" cy="46" r="12.5" class="l"/><circle cx="40" cy="48" r="10" class="l"/><circle cx="27" cy="38" r="10.5" class="l"/><circle cx="15" cy="33" r="8" class="l"/><circle cx="36" cy="34" r="7" class="l"/><text x="27" y="42" font-size="10" font-family="monospace" text-anchor="middle" fill="currentColor" stroke="none">$</text><circle cx="52" cy="20" r="5.5" class="l"/><text x="52" y="23" font-size="6" font-family="monospace" text-anchor="middle" fill="currentColor" stroke="none">$</text></g>
+<g id="jar"><path class="l" d="M22 20 h20 M24 20 v-6 h16 v6 M25 22 v28 a9 9 0 0 0 1 4 h11 a9 9 0 0 0 1-4 v-28"/><circle cx="28" cy="48" r="4.6" class="l"/><circle cx="36" cy="48" r="4.6" class="l"/><circle cx="32" cy="41" r="4.6" class="l"/><circle cx="40" cy="41" r="4.6" class="l"/><path class="l" d="M32 13 v-7 M40 10 l-4 3 4 3" opacity=".9"/><circle cx="32" cy="6" r="4.5" class="l"/></g>
+<g id="wheel"><circle cx="32" cy="34" r="19" class="l"/><circle cx="32" cy="34" r="4.2" class="l"/><path class="l" d="M32 15 v-6 M18.7 47 l-6.4 4.6 M45.3 47 l6.4 4.6"/><path class="l" d="M23 24 c5 -3 12 -3 17 2 M25 34 c-1 -4 -6 -6 -9 -6 M28 27 c2 2 2 6 0 8 M41 26 c3 1 5 4 4 7" opacity=".95"/><path class="l" d="M50 14 h10 M52 20 h8" opacity=".6"/></g>
+<g id="web"><path class="l" d="M6 4 a52 52 0 0 1 52 52 M6 16 a38 54 0 0 1 44 42 M14 6 a54 38 0 0 1 42 44 M6 28 a26 40 0 0 1 32 32 M28 6 a40 26 0 0 1 32 32 M14 18 a22 30 0 0 1 30 22 M18 14 a30 22 0 0 1 22 30 M6 40 a16 22 0 0 1 20 18 M40 6 a22 16 0 0 1 18 20 M6 4 h4 M4 6 v4 M58 58 h4 M58 58 v4"/><circle cx="26" cy="26" r="2.3" fill="currentColor" stroke="none" opacity=".85"/><circle cx="36" cy="18" r="1.9" fill="currentColor" stroke="none" opacity=".7"/><circle cx="18" cy="36" r="1.9" fill="currentColor" stroke="none" opacity=".7"/><circle cx="46" cy="32" r="2.2" fill="currentColor" stroke="none" opacity=".75"/><path class="l" d="M50 56 l-4 6 M54 56 h10 v2 h-6 a4 4 0 0 0 4 0 M57 62 c-4 0 -5 2 -5 2 M57 62 c4 1 6 3 6 3" opacity=".95"/></g>
+<g id="pick"><path class="l" d="M40 12 c14 2 20 12 19 21 M24 10 c-10 4 -14 14 -13 22"/><path class="l" d="M32 16 l16 40 M28 17 l-2 3 18 40 2-3"/><path class="l" d="M14 52 h34 l-4 -8 h-26 l-6 8z" opacity=".9"/><path class="l" d="M46 8 l3 -4 M50 12 l4 -3" opacity=".7"/></g>
+<g id="target"><circle cx="32" cy="32" r="20" class="l"/><circle cx="32" cy="32" r="10" class="l"/><circle cx="32" cy="32" r="2.6" fill="currentColor" stroke="none"/><path class="l" d="M38 38 l14 14 M48 48 l6 6 M52 44 l-8 -1 M44 52 l-1 -8"/><path class="l" d="M14 8 l4 6 M50 8 c-2 3 -2 6 -1 9" opacity=".55"/></g>
+<g id="hour"><path class="l" d="M20 10 h24 M20 54 h24 M24 12 h16 v8 c0 6 -8 8 -8 12 c0 4 8 6 8 12 v8 h-16 v-8 c0 -6 8 -8 8 -12 c0 -4 -8 -6 -8 -12 v-8z"/><path class="l" d="M28 40 h8 l-4 -7z" opacity=".9"/><path class="l" d="M32 34 c0 -3 3 -6 6 -9" opacity=".55"/><path class="l" d="M36 48 v3 M40 49 v2" opacity=".8"/></g>
+</defs></svg>
+
+<script>
+const TIERS=[
+ {id:"LV1",color:"var(--gold)",rgb:"252,211,77",en:"PAID OFF. ABSOLUTE LEGEND.",zh:"回本了·太强了！",big:"coins",alt:"target",altName:"bullseye"},
+ {id:"LV2",color:"var(--green)",rgb:"74,222,128",en:"ALMOST THERE.",zh:"马上回本！",big:"jar",alt:"target",altName:"bullseye"},
+ {id:"LV3",color:"var(--amber)",rgb:"251,146,60",en:"STILL A LONG WAY. KEEP GRINDING.",zh:"还差得远·再接再厉！",big:"wheel",alt:"pick",altName:"pick+ore"},
+ {id:"LV4",color:"var(--purple)",rgb:"167,139,250",en:"PAYBACK IS A DISTANT DREAM.",zh:"回本遥遥无期！",big:"web",alt:"hour",altName:"hourglass"},
+];
+const banner=(t,alt)=>`
+<div class="banner" style="--rgb:${t.rgb};color:${t.color};box-shadow:0 0 44px -14px ${t.color}66">
+  <span class="tag">${t.id} ${alt?'— 候选 '+t.altName:'— 主选'}</span>
+  <div class="bannerIcon" style="color:${t.color}">◍<br>z z z</div>
+  <div class="main">
+    <div class="row2"><span class="chip">[ ${t.id} · ${t.en} ]</span></div>
+    <div class="en" style="color:var(--text)">${t.en}</div>
+    <div class="zh">${t.zh}</div>
+    <div class="roast">// At this rate, your next GPU will retire first.</div>
+    <div class="clock" style="color:${t.color}">68 Y 11 MO 15 D 12 H 52 M 46 S</div>
+  </div>
+  <svg class="deco ${t.big==='web'?'web':''}" data-glyph="${alt?t.alt:t.big}" style="color:${t.color}" viewBox="0 0 64 64"></svg>
+</div>`;
+const b=document.getElementById("banners");
+for(const t of TIERS){b.insertAdjacentHTML("beforeend",banner(t,false));b.insertAdjacentHTML("beforeend",banner(t,true));}
+const lad=document.getElementById("ladder");
+for(const t of TIERS){
+  lad.insertAdjacentHTML("beforeend",`<div class="tier" style="${t.id==='LV4'?'border-color:'+t.color+';box-shadow:0 0 18px -9px '+t.color:''}">
+    <svg class="ico" data-glyph="${t.big}" style="color:${t.color}" viewBox="0 0 64 64"></svg>
+    <div class="txt"><span class="tEn" style="color:${t.id==='LV4'?t.color:'var(--text)'}">${t.en}</span><span class="tZh">${t.zh}</span></div></div>`);
+}
+// inline-clone the glyph defs (a display:none <use> target can be left unresolved by Chrome)
+for(const el of document.querySelectorAll("svg[data-glyph]")){
+  const src=document.getElementById(el.dataset.glyph);
+  if(!src){el.setAttribute("data-missing","1");continue;}
+  for(const n of src.childNodes) el.appendChild(n.cloneNode(true));
+}
+</script>
+</body>
+</html>

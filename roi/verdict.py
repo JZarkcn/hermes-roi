@@ -26,7 +26,7 @@ Fixed product rules (T04 — no alternatives are implemented here):
   day 30 (a one-time number shift, disclosed in the UI badge).
 * **Exactly four tiers**
   - ``LV1`` already paid off: net ≥ hardware (inclusive).
-  - ``LV2`` break-even within 90 days (inclusive: day 90 → LV2).
+  - ``LV2`` break-even within 180 days (inclusive: day 180 → LV2).
   - ``LV3`` within 5 years = 1825 days (inclusive: day 1825 → LV3).
   - ``LV4`` farther than 1825 days, OR no positive pace (zero/negative).
   No recorded usage at all is the ``"unknown"`` onboarding state — NOT a
@@ -56,7 +56,7 @@ from typing import Optional, Sequence, Tuple
 PACE_WINDOW_DAYS = 30
 
 #: Tier horizons in whole days (boundary-inclusive).
-LV2_HORIZON_DAYS = 90
+LV2_HORIZON_DAYS = 180  # half a year per owner ruling 2026-11-22 ("线太小了，改成小于 180 天")
 LV3_HORIZON_DAYS = 1825  # 5 years per the fixed product rule
 
 #: 3-decimal display exponent for the percents.
@@ -412,7 +412,7 @@ def make_verdict(
     """Full verdict: hero + secondary percents, projection, four-tier tier.
 
     Tier assignment (fixed rules, see module docstring): unknown history →
-    ``"unknown"``; remaining ≤ 0 → LV1; days ≤ 90 → LV2; days ≤ 1825 → LV3;
+    ``"unknown"``; remaining ≤ 0 → LV1; days ≤ 180 → LV2; days ≤ 1825 → LV3;
     days > 1825 or pace ≤ 0 → LV4.
 
     ``recurring_cost_per_day`` is forwarded to :func:`project_break_even`
