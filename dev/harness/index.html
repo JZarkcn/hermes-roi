@@ -64,6 +64,8 @@
   const contributions = [];
   const ctx = {
     rest: async (path) => {
+      (window.__rest_calls = window.__rest_calls || []).push(path);
+      await new Promise((r) => setTimeout(r, 250)); // let the refresh state be observable
       const p = path.split("?")[0];
       if (p === "/economics") return eco;
       if (p === "/summary") return summ;

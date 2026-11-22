@@ -78,7 +78,8 @@ const S = {
   title: { fontFamily: MONO, fontSize: 14, letterSpacing: "0.06em", color: TEXT },
   titleMark: { fontFamily: MONO, fontSize: 14, color: MUTED, marginRight: 6 },
   tagline: { fontFamily: MONO, fontSize: 11, color: SOFT },
-  scope: { fontFamily: MONO, fontSize: 10, color: MUTED, letterSpacing: "0.08em" },
+  scope: { fontFamily: MONO, fontSize: 10, color: MUTED, letterSpacing: "0.08em", display: "flex", alignItems: "baseline", gap: 12, justifyContent: "space-between", flexWrap: "wrap" },
+  refreshBtn: { fontFamily: MONO, fontSize: 10, letterSpacing: "0.08em", color: SOFT, background: "transparent", border: `1px solid ${BORDER}`, borderRadius: 6, padding: "4px 10px", cursor: "pointer" },
   overline: { fontFamily: MONO, fontSize: 10, letterSpacing: "0.14em", textTransform: "uppercase", color: MUTED },
 
   // ── verdict hero (big, bold, daring colour — owner 2026-11-05) ─────────
@@ -534,6 +535,14 @@ function RoiPage() {
   });
   const benchModels = qh.data && qh.data.benchmark_models;
   const benchDefault = qh.data && qh.data.benchmark_default;
+  // Manual refresh: re-runs both queries against the backend (which recomputes
+  // on the spot — no cron, no self-update; rule-3 clean). Same on any machine:
+  // ctx.rest() is the public plugin API.
+  const roiFetching = q.isFetching || qe.isFetching;
+  const roiRefresh = () => {
+    q.refetch();
+    if (ep) qe.refetch();
+  };
 
   if (!rest) {
     return h("div", { style: { ...S.root, ...S.note } }, "backend not mounted yet (enable the plugin, restart the gateway)");
@@ -585,8 +594,15 @@ function RoiPage() {
         h("div", { style: S.title }, "ROI / Return on Intelligence"),
         h("div", { style: { ...S.tagline, marginLeft: 10 } }, "A brutally honest ROI for your local AI rig.")),
       h("div", { style: S.scope },
-        `SCOPE: ALL PROFILES (${(s.profiles || []).length})` +
-        (s.profiles && s.profiles.length ? ` — ${s.profiles.join(", ")}` : ""))),
+        h("span", null,
+          `SCOPE: ALL PROFILES (${(s.profiles || []).length})` +
+          (s.profiles && s.profiles.length ? ` — ${s.profiles.join(", ")}` : "")),
+        h("button", {
+          style: { ...S.refreshBtn, opacity: roiFetching ? 0.55 : 1, cursor: roiFetching ? "default" : "pointer" },
+          onClick: roiRefresh,
+          disabled: roiFetching,
+          title: "Re-read the store and recompute everything (backend runs on the spot)",
+        }, roiFetching ? "REFRESHING…" : "⟳ REFRESH"))),
     ep ? econArea : h("div", { style: { display: "flex", flexDirection: "column", gap: 8 } },
       h(Settings, { cfg, save, models: benchModels, defaultModel: benchDefault, applied: appliedEnergy, primary: true }),
       h("div", { style: S.hint }, "set the hardware cost + start date — the recovery math, countdown and chart run on save.")),

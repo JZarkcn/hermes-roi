@@ -3,9 +3,9 @@
 # sha 用 `git -C ../hermes-roi-dist rev-parse HEAD` 的 40 位全串,禁止分支/标签/短 sha
 name: hermes-roi
 title: "ROI — Return on Intelligence"
-version: "0.1.0"                # 与 plugin.yaml 同步;bump sha 的 PR 里一起改
+version: "0.2.0"                # 与 plugin.yaml 同步;bump sha 的 PR 里一起改
 repo: https://github.com/JZarkcn/hermes-roi
-sha: "3685e92b154a65d3cbc7a9e52d46970f966b313c"
+sha: "673ba6f66ee5893bdd4b2895ed810e994ee036c6"
 description: "ROI measures your local-inference hardware payback on Hermes: recovery %, break-even date and a 4-tier verdict, live from your own sessions. Disclosure — reads state.db read-only (sessions/tokens/billing metadata across your local profiles; no raw messages); computes locally; no third-party network calls, no telemetry, no credentials read or stored; benchmark API prices, FX and electricity cost are whatever you type in."
 maintainer: JZarkcn
 tier: community
@@ -16,7 +16,10 @@ capabilities:
   provides_hooks: []
   provides_middleware: []
   requires_env: []
-# screenshots 需在 pinned SHA 处可直接 raw 访问:
-#   https://raw.githubusercontent.com/Jzarkcn.sg/hermes-roi/<sha>/docs/screenshots/<name>.png
-# ⚠ 现有验证截图含本机真实金额,提交前须打码或改用样例数据截图
-# image: <同 SHA 的 banner.png>
+# screenshots 需在 pinned SHA 处可直接 raw 访问(样例数据合成,零真实信息):
+image: "https://raw.githubusercontent.com/JZarkcn/hermes-roi/673ba6f66ee5893bdd4b2895ed810e994ee036c6/dev/harness/catalog-shots/roi-sample-lv4.png"
+screenshots:
+  - "https://raw.githubusercontent.com/JZarkcn/hermes-roi/673ba6f66ee5893bdd4b2895ed810e994ee036c6/dev/harness/catalog-shots/roi-sample-lv1.png"
+  - "https://raw.githubusercontent.com/JZarkcn/hermes-roi/673ba6f66ee5893bdd4b2895ed810e994ee036c6/dev/harness/catalog-shots/roi-sample-lv2.png"
+  - "https://raw.githubusercontent.com/JZarkcn/hermes-roi/673ba6f66ee5893bdd4b2895ed810e994ee036c6/dev/harness/catalog-shots/roi-sample-lv3.png"
+  - "https://raw.githubusercontent.com/JZarkcn/hermes-roi/673ba6f66ee5893bdd4b2895ed810e994ee036c6/dev/harness/catalog-shots/roi-sample-lv4.png"

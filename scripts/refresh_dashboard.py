@@ -228,6 +228,12 @@ CSS = """
     display: flex; align-items: center; gap: 8px;
   }
   .top .refresh .pulse { width: 7px; height: 7px; border-radius: 50%; background: var(--accent); }
+  .top .refresh-btn {
+    background: var(--accent); color: var(--foreground);
+    border: 1px solid var(--border); border-radius: 6px; padding: 4px 10px;
+    font-size: 12px; cursor: pointer;
+  }
+  .top .refresh-btn:hover { filter: brightness(1.15); }
   .kpis { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
   .kpi { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; background: var(--card); }
   .kpi .label { font-size: 10px; text-transform: uppercase; letter-spacing: .13em; color: var(--muted-foreground); margin-bottom: 8px; }
@@ -392,6 +398,7 @@ def build_html(now, branch, commits, untracked, modified, phase, p0_done, p0_tot
     <h1>ROI — Return on Intelligence</h1>
     <span class="sub">Hermes Desktop 社区插件 · 项目管理面板</span>
     <span class="refresh"><span class="pulse"></span>最新刷新 <span class="mono">%s</span></span>
+    <button class="refresh-btn" data-hermes-send="刷新 ROI 项目管理看板：运行 python3 ~/ai/hermes-roi/scripts/refresh_dashboard.py（timeout 240），然后 desktop_preview action=open 打开 ~/.hermes/profiles/roi-dev/cache/scratch/roi-dashboard.html（label=ROI 项目面板），回复一行中文状态">⟳ 刷新看板</button>
   </div>
 
   <div class="kpis">

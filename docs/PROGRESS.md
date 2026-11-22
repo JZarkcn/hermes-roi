@@ -738,3 +738,11 @@ Residual / next:
   gateway restart (owner-run) to serve the live endpoint; the frontend
   hot-reload picks up the badge regardless (missing field ⇒ falsy ⇒ no badge).
 
+
+## 2026-11-22 — Manual refresh button on the ROI pane (closed 2026-11-22)
+- Owner want: 「我希望把它合入PR,所以刷新需要在其他人的主机上也能工作」 — the click-to-refresh must be part of the plugin itself, not a this-machine dev-dashboard script. Added `⟳ REFRESH` button to the SCOPE header in `desktop/plugin.js`: onClick re-runs the summary (and economics, when configured) queries via `useQuery().refetch()`; `isFetching` drives the 「REFRESHING…」 label + disabled state. Built purely on the public SDK surface (`ctx.rest`, TanStack `useQuery`) — backend recomputes on the spot; no cron, no self-update (rule-3 clean); identical on any host.
+- Version bump 0.1.0 → 0.2.0 (`plugin.yaml`, `docs/catalog-entry.draft.yaml`). The catalog PR's entry yaml (fork branch) must get the same version bump + new pinned dist sha when pushed.
+- Harness support: `dev/harness/sdk-stub.js` `useQuery` gained `refetch`/`isFetching` (fire-once stub silently swallowed the button); `index.html` ctx.rest now counts calls (`window.__rest_calls`) + 250 ms latency so the refresh state is observable. Remember: harness `plugin.js` is a copy — `cp ../../desktop/plugin.js plugin.js` after edits (README).
+- Verified: `python3 -m unittest discover -s tests` → 138/138 OK. Browser (served harness, real Chrome): load → 3 rest calls; one onClick → exactly summary+economics re-run (+2, health untouched), button 「REFRESHING…」 mid-flight → 「⟳ REFRESH」 settled, page intact (screenshot `roi-refresh-button-20261122.png`).
+- PITFALL: `python3 -m http.server` sends no Cache-Control → Chrome heuristic-caches `sdk-stub.js`; module-graph debugging must use a fresh query (`?v=N`) or CDP `Network.setCacheDisabled` — a plain reload can keep serving the stale stub. Also: the harness stub returns cached objects from `ctx.rest` (no network per refetch) — fetch-count checks there are meaningless; assert `__rest_calls` instead.
+- PENDING (needs owner): re-run `scripts/make-dist.sh` → new dist commit → push `hermes-roi-dist` (deploy key) → update catalog PR branch entry (version 0.2.0 + new sha) — fork push needs a fresh short-lived GitHub token.

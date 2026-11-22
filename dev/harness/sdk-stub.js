@@ -6,16 +6,27 @@ export const ROUTES_AREA = "routes-area";
 export const SIDEBAR_NAV_AREA = "sidebar-nav-area";
 
 export function useQuery({ queryFn }) {
-  const [state, setState] = useState({ data: null, isLoading: true, error: null });
+  const [data, setData] = useState(null);
+  const [error, setError] = useState(null);
+  const [loading, setLoading] = useState(true);
+  const [fetching, setFetching] = useState(true);
+  const [nonce, setNonce] = useState(0);
   useEffect(() => {
     let on = true;
+    setFetching(true);
     Promise.resolve()
       .then(() => queryFn())
-      .then((data) => on && setState({ data, isLoading: false, error: null }))
-      .catch((error) => on && setState({ data: null, isLoading: false, error }));
+      .then((d) => on && (setData(d), setError(null)))
+      .catch((e) => on && setError(e))
+      .finally(() => on && (setFetching(false), setLoading(false)));
     return () => { on = false; };
-  }, []);
-  return state;
+  }, [nonce]);
+  return {
+    data, error,
+    isLoading: loading,
+    isFetching: fetching,
+    refetch: () => setNonce((n) => n + 1),
+  };
 }
 
 export function Skeleton() {
